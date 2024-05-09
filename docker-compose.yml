@@ -1,0 +1,33 @@
+version: '3'
+services:
+  server:
+    build: server/.
+    container_name: server
+    environment:
+      - NUM_ROUNDS=3
+    networks:
+      - federated_learning
+
+  client-0:
+    build: client/.
+    restart: on-failure
+    environment:
+      - SERVER_ADDRESS=server:8080
+      - PARTITION_ID=0
+      - NUMBER_OF_CLIENTS=2
+    networks:
+      - federated_learning
+
+  client-1:
+    build: client/.
+    restart: on-failure
+    environment:
+      - SERVER_ADDRESS=server:8080
+      - PARTITION_ID=1
+      - NUMBER_OF_CLIENTS=2
+    networks:
+      - federated_learning
+
+networks:
+  federated_learning:
+    driver: bridge

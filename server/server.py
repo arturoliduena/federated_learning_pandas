@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -73,10 +74,11 @@ class FedAnalytics(Strategy):
     ) -> Tuple[Optional[float], Dict[str, Scalar]]:
         pass
 
+num_rounds = int(os.getenv("NUM_ROUNDS", 3))
 
 # Start Flower server
 fl.server.start_server(
     server_address="0.0.0.0:8080",
-    config=fl.server.ServerConfig(num_rounds=1),
+    config=fl.server.ServerConfig(num_rounds=num_rounds),
     strategy=FedAnalytics(),
 )
