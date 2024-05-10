@@ -1,3 +1,4 @@
+import os
 import argparse
 from typing import Dict, List, Tuple
 
@@ -38,7 +39,7 @@ class FlowerClient(fl.client.NumPyClient):
 
 
 if __name__ == "__main__":
-    N_CLIENTS = 2
+    N_CLIENTS = os.environ.get("N_CLIENTS", 10)
 
     parser = argparse.ArgumentParser(description="Flower")
     parser.add_argument(
@@ -48,8 +49,16 @@ if __name__ == "__main__":
         required=True,
         help="Specifies the partition id of artificially partitioned datasets.",
     )
+
+    parser.add_argument(
+        "--server-address",
+        type=str,
+        required=True,
+        help="The address of the Flower server. server + port",
+    )
     args = parser.parse_args()
     partition_id = args.partition_id
+    server_address = args.server_address
 
     # Load the partition data
     fds = FederatedDataset(dataset="hitorilabs/iris", partitioners={"train": N_CLIENTS})
@@ -60,6 +69,6 @@ if __name__ == "__main__":
 
     # Start Flower client
     fl.client.start_client(
-        server_address="127.0.0.1:8080",
+        server_address=server_address,
         client=FlowerClient(X).to_client(),
     )
