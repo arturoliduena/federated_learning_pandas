@@ -3,8 +3,14 @@
 Tutorial for a federated learning using flower and pandas.
 
 ## What is Federated Learning?
-...
+Federated learning is an approach to machine learning that allows models to be trained in a distributed way across multiple devices or local servers, without having to gather and transfer the raw data to a central server. Instead, models are sent to local devices, where they are trained on local data, and then model updates are aggregated to form a global model. This approach has a number of advantages, including the protection of data confidentiality, reduced bandwidth requirements and the ability to process geographically distributed data.
 
+### Example - Use Cases
+- To illustrate this, let's take the example of text prediction on smartphones. In a centralised model, all the text examples have to be sent to a central server for processing, which poses problems of confidentiality and latency. In contrast, with federated learning, text prediction models can be trained locally on each smartphone, using only the data available on that device. In this way, text predictions can be improved without compromising the confidentiality of user data.
+
+- Another example concerns autonomous vehicles. In a centralised model, the driving data from each vehicle has to be sent to a central server to train the autonomous driving model, which poses problems of confidentiality and latency, as well as requiring a lot of bandwidth. With federated learning, each vehicle can train its own autonomous driving model using only local driving data, and then model updates can be aggregated to form an improved global model, without compromising the confidentiality of driver data.
+
+In summary, federated learning makes it possible to take advantage of distributed data while preserving data confidentiality, reducing bandwidth requirements and enabling distributed processing of geographically dispersed data.
 
 ## Project Setup
 
