@@ -186,7 +186,6 @@ fl.server.start_server(
 )
 ```
 
-
 Explanation:
 
 - client.py: This file sets up the Flower client. It imports necessary libraries, defines a custom client class, and implements the fit method to compute histograms locally. The client connects to the Flower server specified via command line arguments (--partition-id for the dataset partition ID and --server-address for the server address).
@@ -206,3 +205,80 @@ After cloning the repository, you can run the containers using the following com
 ```shell
 $ docker-compose up --build
 ```
+
+## Running a Dynamic System with Federated Learning
+
+In real-world scenarios, devices often operate independently. In federated learning, the server must be operational before any client attempts to update the global model. This tutorial demonstrates simulating a dynamic system where the server runs continuously while clients randomly update the model when new data is received. The server waits for 8 updates before generating the global model.
+
+### Running the Server
+
+1. **Create a Docker Network**: This step sets up a network for communication between the server and clients.
+
+    ```bash
+    docker network create federated_learning
+    ```
+
+2. **Build the Server Docker Image**: Build the Docker image for the server.
+
+    ```bash
+    docker build -t federated_learning_server:latest server/.
+    ```
+
+3. **Run the Server Docker Container**: Launch the server Docker container, specifying the number of rounds (updates) to wait for before generating the global model.
+
+    ```bash
+    docker run --name server \
+        --env NUM_ROUNDS=8 \
+        --network federated_learning \
+        federated_learning_server
+    echo "Server started."
+    ```
+
+### Running Random Clients
+
+1. **Create a Bash Script `run_random_clients.sh`**:
+
+    ```bash
+    #!/bin/bash
+    docker build -t federated_learning_client:latest client/.
+
+    start_client() {
+        client_id=$1
+        partition_id=$2
+        client_name="client-${client_id}"
+        docker run -d --name "$client_name" \
+            --env SERVER_ADDRESS=server:8080 \
+            --env PARTITION_ID="$partition_id" \
+            --env NUMBER_OF_CLIENTS=2 \
+            --network federated_learning \
+            --restart on-failure \
+            federated_learning_client
+        echo "Started $client_name"
+    }
+
+    stop_client() {
+        client_id=$1
+        client_name="client-${client_id}"
+        docker stop "$client_name" > /dev/null
+        docker rm "$client_name" > /dev/null
+        echo "Stopped $client_name"
+    }
+
+    create_random_clients() {
+        for ((i=0; i<10; i++)); do
+            client_id=$((RANDOM % 1000))
+            start_client "$client_id" "$i"
+            sleep 1 
+        done
+    }
+
+    create_random_clients
+    ```
+
+2. **Execute the Script in a New Terminal**:
+
+    ```bash
+    ./run_random_clients.sh
+    ```
+
+This script randomly creates and starts multiple client instances, each attempting to update the model when new data is available. Adjust the number of clients and sleep duration according to your requirements.
