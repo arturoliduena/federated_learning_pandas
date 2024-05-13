@@ -190,7 +190,7 @@ class FedAnalytics(Strategy):
     ) -> Tuple[Optional[float], Dict[str, Scalar]]:
         pass
 
-num_rounds = int(os.getenv("NUM_ROUNDS", 3))
+num_rounds = int(os.getenv("NUM_ROUNDS", 2))
 
 # Start Flower server
 fl.server.start_server(
@@ -208,6 +208,23 @@ Explanation:
 
 These files provide a basic setup for running federated learning experiments using Flower.
 
+### Train the model (locally), federated
+With both client and server ready, we can now run everything and see federated learning in action. FL systems usually have a server and multiple clients. We therefore have to start the server first:
+
+```bash
+python server.py
+```
+
+Once the server is running we can start the clients in different terminals. Open a new terminal and start the first client:
+
+```bash
+python client.py --partition-id 0 --server-address 127.0.0.1:8080
+```
+
+Open another terminal and start the second client:
+```bash
+python /client.py --partition-id 0 --server-address 127.0.0.1:8080
+```
 ## Run project
 Start by cloning the example project. We prepared a single-line command that you can copy into your shell which will checkout the example for you:
 

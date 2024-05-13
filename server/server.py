@@ -74,7 +74,7 @@ class FedAnalytics(Strategy):
     ) -> Tuple[Optional[float], Dict[str, Scalar]]:
         pass
 
-num_rounds = int(os.getenv("NUM_ROUNDS", 3))
+num_rounds = int(os.getenv("NUM_ROUNDS", 2))
 
 # Start Flower server
 fl.server.start_server(
