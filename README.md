@@ -212,6 +212,54 @@ After cloning the repository, you can run the containers using the following com
 $ docker-compose up --build
 ```
 
+### Explanation
+- Docker compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application's services. Then, with a single command, you create and start all the services from your configuration. More information here https://docs.docker.com/compose/
+- The `docker-compose.yml` file defines the services for the server and clients.
+    - The server service is built from the `server/` directory (uses the script mentioned in the last part)
+        ```yml
+        server:
+            build: server/.
+            container_name: server
+            environment:
+                - NUM_ROUNDS=3
+            networks:
+                - federated_learning
+        ```
+    - The client service is built from the `client/` directory. The server service is configured to wait for 3 rounds before generating the global model. The client service is configured to start 10 clients, each with a unique partition ID and server address.
+        ```yaml
+            client-1:
+                build: client/.
+                restart: on-failure
+                environment:
+                - SERVER_ADDRESS=server:8080    # Server address
+                - PARTITION_ID=1                # Partition ID
+                - NUMBER_OF_CLIENTS=2           # Number of clients
+                networks:
+                - federated_learning
+        ```
+    - The `federated_learning` network is created to allow communication between the server and clients.
+        ```yaml
+        networks:
+            federated_learning:
+                driver: bridge
+        ```
+    - The `docker compose up --build` command builds the Docker images and starts the containers.
+    - You can read the logs of the server and clients using the following command:
+        ```shell
+        $ docker compose logs -f
+        ```
+> [!IMPORTANT]  
+> If you use docker-compose v1 you can use the following command:
+> ```shell
+> $ docker-compose up --build
+> $ docker-compose logs -f
+> ```
+> If you use docker-compose v2 you can use the following command:
+> ```shell
+> $ docker compose up --build
+> $ docker compose logs -f
+> ```
+
 ## Running a Dynamic System with Federated Learning
 
 In real-world scenarios, devices often operate independently. In federated learning, the server must be operational before any client attempts to update the global model. This tutorial demonstrates simulating a dynamic system where the server runs continuously while clients randomly update the model when new data is received. The server waits for 8 updates before generating the global model.
