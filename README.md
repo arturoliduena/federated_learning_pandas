@@ -10,6 +10,14 @@ Federated learning is an approach to machine learning that allows models to be t
 
 - Another example concerns autonomous vehicles. In a centralised model, the driving data from each vehicle has to be sent to a central server to train the autonomous driving model, which poses problems of confidentiality and latency, as well as requiring a lot of bandwidth. With federated learning, each vehicle can train its own autonomous driving model using only local driving data, and then model updates can be aggregated to form an improved global model, without compromising the confidentiality of driver data.
 
+#### With centralised learning:
+- Data is sent to a central server for processing
+![Centralised Learning](centralized_learning.jpg)
+
+#### With federated learning:
+- Models are sent to local devices for training
+![Federated learning](federated_learning.jpg)
+
 In summary, federated learning makes it possible to take advantage of distributed data while preserving data confidentiality, reducing bandwidth requirements and enabling distributed processing of geographically dispersed data.
 
 ## Project Setup
@@ -213,41 +221,42 @@ $ docker-compose up --build
 ```
 
 ### Explanation
-- Docker compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application's services. Then, with a single command, you create and start all the services from your configuration. More information here https://docs.docker.com/compose/
-- The `docker-compose.yml` file defines the services for the server and clients.
-    - The server service is built from the `server/` directory (uses the script mentioned in the last part)
-        ```yml
-        server:
-            build: server/.
-            container_name: server
-            environment:
-                - NUM_ROUNDS=3
-            networks:
-                - federated_learning
-        ```
-    - The client service is built from the `client/` directory. The server service is configured to wait for 3 rounds before generating the global model. The client service is configured to start 10 clients, each with a unique partition ID and server address.
-        ```yaml
-            client-1:
-                build: client/.
-                restart: on-failure
-                environment:
-                - SERVER_ADDRESS=server:8080    # Server address
-                - PARTITION_ID=1                # Partition ID
-                - NUMBER_OF_CLIENTS=2           # Number of clients
-                networks:
-                - federated_learning
-        ```
-    - The `federated_learning` network is created to allow communication between the server and clients.
-        ```yaml
+> [!NOTE]  
+> Docker compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application's services. Then, with a single command, you create and start all the services from your configuration. More information here https://docs.docker.com/compose/
+The `docker-compose.yml` file defines the services for the server and clients.
+- The server service is built from the `server/` directory (uses the script mentioned in the last part)
+    ```yml
+    server:
+        build: server/.
+        container_name: server
+        environment:
+            - NUM_ROUNDS=3
         networks:
-            federated_learning:
-                driver: bridge
-        ```
-    - The `docker compose up --build` command builds the Docker images and starts the containers.
-    - You can read the logs of the server and clients using the following command:
-        ```shell
-        $ docker compose logs -f
-        ```
+            - federated_learning
+    ```
+- The client service is built from the `client/` directory. The server service is configured to wait for 3 rounds before generating the global model. The client service is configured to start 10 clients, each with a unique partition ID and server address.
+    ```yaml
+        client-1:
+            build: client/.
+            restart: on-failure
+            environment:
+            - SERVER_ADDRESS=server:8080    # Server address
+            - PARTITION_ID=1                # Partition ID
+            - NUMBER_OF_CLIENTS=2           # Number of clients
+            networks:
+            - federated_learning
+    ```
+- The `federated_learning` network is created to allow communication between the server and clients.
+    ```yaml
+    networks:
+        federated_learning:
+            driver: bridge
+    ```
+- The `docker compose up --build` command builds the Docker images and starts the containers.
+- You can read the logs of the server and clients using the following command:
+    ```shell
+    $ docker compose logs -f
+    ```
 > [!IMPORTANT]  
 > If you use docker-compose v1 you can use the following command:
 > ```shell
